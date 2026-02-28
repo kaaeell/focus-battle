@@ -9,7 +9,7 @@
 <body>
   <h1>Focus Battle!</h1>
 
-  <!-- Stats bar (top right) -->
+  <!-- Stats bar -->
   <div id="stats-bar">
     <div class="stat">
       <span class="stat-label">LVL</span>
@@ -31,11 +31,24 @@
     </div>
   </div>
 
-  <!-- Timer duration picker -->
+  <!-- Active item badges shown here by JS -->
+  <div id="active-items"></div>
+
+  <!-- Duration picker -->
   <div id="duration-row">
     <button class="dur-btn active" data-min="25">25m</button>
     <button class="dur-btn" data-min="50">50m</button>
     <button class="dur-btn" data-min="90">90m</button>
+  </div>
+
+  <!-- Enemy card (hidden until session starts) -->
+  <div id="enemy-card" class="hidden">
+    <span id="enemy-tier-badge">Common</span>
+    <p id="enemy-name">—</p>
+    <div class="bar-track wide">
+      <div class="bar-fill enemy" id="enemy-hp-fill"></div>
+    </div>
+    <span id="enemy-hp-text">—</span>
   </div>
 
   <p id="timer">25:00</p>
@@ -51,6 +64,16 @@
   </div>
 
   <button id="btn-stop">Stop</button>
+
+  <!-- Shop modal -->
+  <div id="shop-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-panel">
+      <button class="modal-close" id="shop-close" aria-label="Close">✕</button>
+      <h2 class="modal-title">Apothecary</h2>
+      <p class="modal-subtitle">Spend your hard-earned XP</p>
+      <div id="shop-items-grid"></div>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
