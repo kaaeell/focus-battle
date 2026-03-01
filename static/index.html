@@ -29,9 +29,13 @@
       </div>
       <span id="xp-val">0</span>
     </div>
+    <div class="stat">
+      <span class="stat-label">🔥</span>
+      <span id="streak-val">0</span>
+    </div>
   </div>
 
-  <!-- Active item badges shown here by JS -->
+  <!-- Active item badges -->
   <div id="active-items"></div>
 
   <!-- Duration picker -->
@@ -41,7 +45,7 @@
     <button class="dur-btn" data-min="90">90m</button>
   </div>
 
-  <!-- Enemy card (hidden until session starts) -->
+  <!-- Enemy card -->
   <div id="enemy-card" class="hidden">
     <span id="enemy-tier-badge">Common</span>
     <p id="enemy-name">—</p>
@@ -49,6 +53,10 @@
       <div class="bar-fill enemy" id="enemy-hp-fill"></div>
     </div>
     <span id="enemy-hp-text">—</span>
+    <span id="enemy-ability-row">
+      <span id="enemy-ability-label" class="ability-label">—</span>
+      <span id="enemy-ability-desc" class="ability-desc">—</span>
+    </span>
   </div>
 
   <p id="timer">25:00</p>
@@ -72,6 +80,16 @@
       <h2 class="modal-title">Apothecary</h2>
       <p class="modal-subtitle">Spend your hard-earned XP</p>
       <div id="shop-items-grid"></div>
+    </div>
+  </div>
+
+  <!-- Inventory modal -->
+  <div id="inv-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-panel">
+      <button class="modal-close" id="inv-close" aria-label="Close">✕</button>
+      <h2 class="modal-title">Inventory</h2>
+      <p class="modal-subtitle">Equip items before your session</p>
+      <div id="inv-items-grid"></div>
     </div>
   </div>
 
