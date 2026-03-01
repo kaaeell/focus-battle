@@ -54,7 +54,7 @@
     <button class="dur-btn" data-min="90">90m</button>
   </div>
 
-  <!-- Enemy card (hidden until session starts) -->
+  <!-- Enemy card -->
   <div id="enemy-card" class="hidden">
     <span id="enemy-tier-badge">Common</span>
     <p id="enemy-name">—</p>
@@ -79,12 +79,14 @@
     <button id="btn-shop">Shop</button>
     <button id="btn-inv">Inventory</button>
     <button id="btn-history">History</button>
+    <button id="btn-achievements">Feats</button>
+    <button id="btn-mute">♪</button>
   </div>
 
   <button id="btn-stop">Stop</button>
 
   <!-- Shop modal -->
-  <div id="shop-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+  <div id="shop-modal" class="modal-overlay hidden">
     <div class="modal-panel">
       <button class="modal-close" id="shop-close">✕</button>
       <h2 class="modal-title">Apothecary</h2>
@@ -94,7 +96,7 @@
   </div>
 
   <!-- Inventory modal -->
-  <div id="inv-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+  <div id="inv-modal" class="modal-overlay hidden">
     <div class="modal-panel">
       <button class="modal-close" id="inv-close">✕</button>
       <h2 class="modal-title">Inventory</h2>
@@ -104,7 +106,7 @@
   </div>
 
   <!-- History modal -->
-  <div id="history-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+  <div id="history-modal" class="modal-overlay hidden">
     <div class="modal-panel">
       <button class="modal-close" id="history-close">✕</button>
       <h2 class="modal-title">History</h2>
@@ -113,8 +115,18 @@
     </div>
   </div>
 
+  <!-- Achievements modal -->
+  <div id="achievements-modal" class="modal-overlay hidden">
+    <div class="modal-panel">
+      <button class="modal-close" id="achievements-close">✕</button>
+      <h2 class="modal-title">Feats</h2>
+      <p class="modal-subtitle" id="achievements-count">0 / 12 unlocked</p>
+      <div id="achievements-grid"></div>
+    </div>
+  </div>
+
   <!-- Death screen -->
-  <div id="death-screen" class="modal-overlay hidden" role="alert">
+  <div id="death-screen" class="modal-overlay hidden">
     <div class="modal-panel death-panel">
       <h2 class="death-title">Defeated</h2>
       <p class="death-sub">Your HP reached zero</p>
