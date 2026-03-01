@@ -1,6 +1,6 @@
 # Focus Battle
 
-A fun, interactive web app that turns your study sessions into a game! 🎮⏱️
+A gamified focus timer that turns study sessions into battles. ⚔️⏱️
 
 ---
 
@@ -12,50 +12,82 @@ A fun, interactive web app that turns your study sessions into a game! 🎮⏱�
 - Level up as your XP grows
 
 **Enemy Battles**
-- A random enemy spawns when you start a session
-- Enemy HP drains gradually as you focus — defeat them by finishing
-- 5 enemy types across 3 tiers: Common, Uncommon, Rare
+- A random enemy spawns on session start — defeat it by finishing
+- 5 regular enemies across Common, Uncommon, Rare tiers
+- Enemy HP drains proportionally as you focus
+
+**Boss Battles**
+- Every 5 levels a boss spawns with scaled HP and XP
+- 3 rotating bosses — The Procrastinator King, Lord of Infinite Scroll, Eternal Void Sovereign
+- Bosses trigger a distinct ambient music shift and gold card treatment
 
 **Enemy Special Abilities**
-- **XP Thief** — steals 15–25 XP if you quit the session early
-- **Soul Drain** — deals 5–8 HP damage every 10 minutes during a session
-- **Time Curse** — adds 2 extra minutes to the timer at the halfway point
+- **XP Thief** — steals XP if you quit early
+- **Soul Drain** — drains HP every 10 minutes
+- **Time Curse** — adds extra minutes at halfway (5 min for bosses)
+
+**Achievements (12 total)**
+| Category | Achievement | Condition |
+|---|---|---|
+| Session | First Blood | Complete your first session |
+| Session | Veteran | Complete 10 sessions |
+| Session | Long Haul | Complete a 90-minute session |
+| Session | Untouchable | Finish a session without losing HP |
+| Combat | Rare Hunter | Defeat a Rare enemy |
+| Combat | Boss Slayer | Defeat your first boss |
+| Combat | Warlord | Defeat 3 bosses |
+| Combat | Void Walker | Defeat the Eternal Void Sovereign |
+| Streak | On Fire | Reach a 3-day streak |
+| Streak | Unstoppable | Reach a 7-day streak |
+| Progression | Rising | Reach Level 5 |
+| Progression | Ascendant | Reach Level 10 |
+
+**Ambient Music**
+- Procedural music via Web Audio API — no external files
+- Calm drone during normal sessions
+- Deep tense rumble with rhythmic pulse during boss fights
+- Music shifts automatically when a boss spawns
+- Mute button in the top bar
+
+**Daily Challenge**
+- One challenge per day, deterministic by date
+- 6 challenge types with bonus XP on completion
+- Shown in a fixed bottom-left panel
 
 **Streak System**
-- Complete sessions on consecutive days to build your streak 🔥
-- Streak bonus: +5 XP per streak day, up to +25 XP at a 5-day streak
-- Streak resets if you miss a day
+- Consecutive daily sessions build a streak 🔥
+- Bonus XP: +5 per streak day, capped at +25
+
+**Death Screen + HP Regen**
+- HP hitting 0 triggers a death screen with live regen countdown
+- +5 HP every 15 minutes passively, capped at 50
+- Calculated from time of death — works across page refreshes
 
 **Shop (Apothecary)**
-- Spend XP on items between sessions
-- **Health Potion** — restore 30 HP instantly (30 XP)
-- **Iron Shield** — block the next HP penalty (50 XP)
-- **XP Tome** — earn +25 bonus XP on next session completion (40 XP)
+| Item | Cost | Effect |
+|---|---|---|
+| Health Potion | 30 XP | +30 HP instantly |
+| Elixir of Rebirth | 80 XP | Restore to 50 HP, even from 0 |
+| Iron Shield | 50 XP | Block next HP penalty |
+| XP Tome | 40 XP | +25 bonus XP on next completion |
+| Battle Charm | 60 XP | Negate next XP steal |
+| Dark Crystal | 70 XP | 2× XP from next boss |
 
-**Inventory**
-- Non-instant items (Shield, Tome) go to your inventory after purchase
-- Equip them before starting a session from the Inventory screen
+**Session History** — Last 20 sessions with enemy, result, XP, and time
 
-**Sound Effects**
-- Session start, enemy defeat, level up, HP loss, purchase, and ability triggers
-- Generated at runtime via Web Audio API — no external files
-
-**Persistence**
-- All progress (HP, XP, level, inventory, streak) saved to `localStorage`
+**Persistence** — All progress saved to `localStorage`
 
 ---
 
 ## Tech Stack
 
-- Python (Flask)
+- Python (Flask) — reserved for future backend features
 - HTML / CSS / JavaScript (vanilla)
 
 ---
 
 ## Roadmap
 
-- [ ] Inventory UI polish + item descriptions on hover
-- [ ] More enemy types and ability variants
-- [ ] Daily challenge system
-- [ ] Ambient background music (Web Audio API)
-- [ ] Boss battles every 5 levels
+- [ ] More enemy types and boss variants
+- [ ] Settings panel (custom timer, reset save)
+- [ ] Multiplayer streak challenge
