@@ -1,6 +1,6 @@
 # Focus Battle
 
-Focus Battle is a fun, interactive web app that turns your study sessions into a game! 🎮⏱️
+A fun, interactive web app that turns your study sessions into a game! 🎮⏱️
 
 ---
 
@@ -12,33 +12,50 @@ Focus Battle is a fun, interactive web app that turns your study sessions into a
 - Level up as your XP grows
 
 **Enemy Battles**
-- A random enemy spawns when you start a session (Distraction Goblin, Notification Wraith, Doom Scroll Demon, and more)
-- Enemies have HP that drains as you focus — defeat them by finishing the session
-- Enemies come in tiers: Common, Uncommon, Rare — each with different HP and XP rewards
+- A random enemy spawns when you start a session
+- Enemy HP drains gradually as you focus — defeat them by finishing
+- 5 enemy types across 3 tiers: Common, Uncommon, Rare
+
+**Enemy Special Abilities**
+- **XP Thief** — steals 15–25 XP if you quit the session early
+- **Soul Drain** — deals 5–8 HP damage every 10 minutes during a session
+- **Time Curse** — adds 2 extra minutes to the timer at the halfway point
+
+**Streak System**
+- Complete sessions on consecutive days to build your streak 🔥
+- Streak bonus: +5 XP per streak day, up to +25 XP at a 5-day streak
+- Streak resets if you miss a day
 
 **Shop (Apothecary)**
 - Spend XP on items between sessions
 - **Health Potion** — restore 30 HP instantly (30 XP)
 - **Iron Shield** — block the next HP penalty (50 XP)
-- **XP Tome** — earn +25 bonus XP on your next session completion (40 XP)
+- **XP Tome** — earn +25 bonus XP on next session completion (40 XP)
+
+**Inventory**
+- Non-instant items (Shield, Tome) go to your inventory after purchase
+- Equip them before starting a session from the Inventory screen
+
+**Sound Effects**
+- Session start, enemy defeat, level up, HP loss, purchase, and ability triggers
+- Generated at runtime via Web Audio API — no external files
 
 **Persistence**
-- HP, XP, level, and active items are saved to `localStorage` — progress carries across page refreshes
+- All progress (HP, XP, level, inventory, streak) saved to `localStorage`
 
 ---
 
 ## Tech Stack
 
 - Python (Flask)
-- HTML
-- CSS
-- JavaScript (vanilla)
+- HTML / CSS / JavaScript (vanilla)
 
 ---
 
 ## Roadmap
 
-- [ ] Sound effects & ambient music (Web Audio API)
-- [ ] Inventory UI to view and manage owned items
-- [ ] Enemy special abilities (e.g. Distraction Goblin steals XP on early quit)
-- [ ] Streak tracking and daily challenges
+- [ ] Inventory UI polish + item descriptions on hover
+- [ ] More enemy types and ability variants
+- [ ] Daily challenge system
+- [ ] Ambient background music (Web Audio API)
+- [ ] Boss battles every 5 levels
