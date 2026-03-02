@@ -47,7 +47,7 @@ A gamified focus timer that turns study sessions into battles. ⚔️⏱️
 - Calm drone during normal sessions
 - Deep tense rumble with rhythmic pulse during boss fights
 - Music shifts automatically when a boss spawns
-- Mute button in the top bar
+- Toggle sound from the Settings panel
 
 **Daily Challenge**
 - One challenge per day, deterministic by date
@@ -73,6 +73,11 @@ A gamified focus timer that turns study sessions into battles. ⚔️⏱️
 | Battle Charm | 60 XP | Negate next XP steal |
 | Dark Crystal | 70 XP | 2× XP from next boss |
 
+**Settings Panel**
+- Toggle sound on/off
+- Clear session history
+- Reset all save data
+
 **Session History** — Last 20 sessions with enemy, result, XP, and time
 
 **Persistence** — All progress saved to `localStorage`
@@ -89,5 +94,5 @@ A gamified focus timer that turns study sessions into battles. ⚔️⏱️
 ## Roadmap
 
 - [ ] More enemy types and boss variants
-- [ ] Settings panel (custom timer, reset save)
+- [ ] Custom timer duration
 - [ ] Multiplayer streak challenge
