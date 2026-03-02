@@ -4,7 +4,7 @@
 
 // ── CONSTANTS ──────────────────────────
 
-const STATE_VERSION     = 4;
+const STATE_VERSION     = 5;
 const XP_PER_LEVEL      = 100;
 const HP_LOSS_ON_QUIT   = 20;
 const REGEN_HP_AMOUNT   = 5;
@@ -27,10 +27,11 @@ const DEFAULT_STATE = {
   regenHpGiven:    0,
   sessionHistory:  [],
   dailyChallenge:  null,
-  achievements:    {},   // { [id]: true }
+  achievements:    {},
   totalSessions:   0,
   totalBossKills:  0,
   totalRareKills:  0,
+  muted:           false,
 };
 
 let state = { ...DEFAULT_STATE };
@@ -38,27 +39,22 @@ let state = { ...DEFAULT_STATE };
 // ── ACHIEVEMENTS ───────────────────────
 
 const ACHIEVEMENTS = [
-  // Session
-  { id: 'first_blood',   icon: '⚔', name: 'First Blood',       desc: 'Complete your first session',           category: 'Session'     },
-  { id: 'ten_sessions',  icon: '📜', name: 'Veteran',           desc: 'Complete 10 sessions',                  category: 'Session'     },
-  { id: 'long_haul',     icon: '⏳', name: 'Long Haul',         desc: 'Complete a 90-minute session',          category: 'Session'     },
-  { id: 'no_damage',     icon: '🛡', name: 'Untouchable',       desc: 'Complete a session without losing HP',  category: 'Session'     },
-  // Combat
-  { id: 'rare_hunter',   icon: '💀', name: 'Rare Hunter',       desc: 'Defeat a Rare enemy',                   category: 'Combat'      },
-  { id: 'boss_slayer',   icon: '👑', name: 'Boss Slayer',       desc: 'Defeat your first boss',                category: 'Combat'      },
-  { id: 'three_bosses',  icon: '🔱', name: 'Warlord',           desc: 'Defeat 3 bosses',                       category: 'Combat'      },
-  { id: 'void_slayer',   icon: '🌑', name: 'Void Walker',       desc: 'Defeat the Eternal Void Sovereign',     category: 'Combat'      },
-  // Streak
-  { id: 'streak_3',      icon: '🔥', name: 'On Fire',           desc: 'Reach a 3-day streak',                  category: 'Streak'      },
-  { id: 'streak_7',      icon: '⚡', name: 'Unstoppable',       desc: 'Reach a 7-day streak',                  category: 'Streak'      },
-  // Progression
-  { id: 'level_5',       icon: '⬆', name: 'Rising',            desc: 'Reach Level 5',                         category: 'Progression' },
-  { id: 'level_10',      icon: '✦', name: 'Ascendant',         desc: 'Reach Level 10',                        category: 'Progression' },
+  { id: 'first_blood',  icon: '⚔', name: 'First Blood',  desc: 'Complete your first session',          category: 'Session'     },
+  { id: 'ten_sessions', icon: '📜', name: 'Veteran',      desc: 'Complete 10 sessions',                 category: 'Session'     },
+  { id: 'long_haul',    icon: '⏳', name: 'Long Haul',    desc: 'Complete a 90-minute session',         category: 'Session'     },
+  { id: 'no_damage',    icon: '🛡', name: 'Untouchable',  desc: 'Finish a session without losing HP',   category: 'Session'     },
+  { id: 'rare_hunter',  icon: '💀', name: 'Rare Hunter',  desc: 'Defeat a Rare enemy',                  category: 'Combat'      },
+  { id: 'boss_slayer',  icon: '👑', name: 'Boss Slayer',  desc: 'Defeat your first boss',               category: 'Combat'      },
+  { id: 'three_bosses', icon: '🔱', name: 'Warlord',      desc: 'Defeat 3 bosses',                      category: 'Combat'      },
+  { id: 'void_slayer',  icon: '🌑', name: 'Void Walker',  desc: 'Defeat the Eternal Void Sovereign',    category: 'Combat'      },
+  { id: 'streak_3',     icon: '🔥', name: 'On Fire',      desc: 'Reach a 3-day streak',                 category: 'Streak'      },
+  { id: 'streak_7',     icon: '⚡', name: 'Unstoppable',  desc: 'Reach a 7-day streak',                 category: 'Streak'      },
+  { id: 'level_5',      icon: '⬆', name: 'Rising',       desc: 'Reach Level 5',                        category: 'Progression' },
+  { id: 'level_10',     icon: '✦', name: 'Ascendant',    desc: 'Reach Level 10',                       category: 'Progression' },
 ];
 
 function checkAchievements(event, ctx = {}) {
   const unlocked = [];
-
   const check = (id, condition) => {
     if (!state.achievements[id] && condition) {
       state.achievements[id] = true;
@@ -77,25 +73,18 @@ function checkAchievements(event, ctx = {}) {
     check('three_bosses', state.totalBossKills >= 3);
     check('void_slayer',  ctx.enemyName === 'Eternal Void Sovereign');
   }
-
   if (event === 'streak_update') {
     check('streak_3', state.streak >= 3);
     check('streak_7', state.streak >= 7);
   }
-
   if (event === 'level_up') {
     check('level_5',  state.level >= 5);
     check('level_10', state.level >= 10);
   }
 
-  // Show toast for each newly unlocked achievement
   unlocked.forEach((a, i) => {
-    setTimeout(() => {
-      showAchievementToast(a);
-      SFX.achievement();
-    }, i * 1200);
+    setTimeout(() => { showAchievementToast(a); SFX.achievement(); }, i * 1200);
   });
-
   if (unlocked.length) saveState();
 }
 
@@ -111,22 +100,17 @@ function showAchievementToast(a) {
   `;
   document.body.appendChild(el);
   requestAnimationFrame(() => el.classList.add('show'));
-  setTimeout(() => {
-    el.classList.remove('show');
-    setTimeout(() => el.remove(), 500);
-  }, 3200);
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 500); }, 3200);
 }
 
 function renderAchievements() {
-  const grid     = document.getElementById('achievements-grid');
-  const countEl  = document.getElementById('achievements-count');
-  const unlocked = Object.keys(state.achievements).length;
-
-  countEl.textContent = `${unlocked} / ${ACHIEVEMENTS.length} unlocked`;
+  const grid    = document.getElementById('achievements-grid');
+  const countEl = document.getElementById('achievements-count');
+  const total   = Object.keys(state.achievements).length;
+  countEl.textContent = `${total} / ${ACHIEVEMENTS.length} unlocked`;
   grid.innerHTML = '';
 
   const categories = [...new Set(ACHIEVEMENTS.map(a => a.category))];
-
   categories.forEach(cat => {
     const heading = document.createElement('p');
     heading.className   = 'ach-category';
@@ -135,11 +119,9 @@ function renderAchievements() {
 
     const group = document.createElement('div');
     group.className = 'ach-group';
-
     ACHIEVEMENTS.filter(a => a.category === cat).forEach(a => {
-      const isUnlocked = !!state.achievements[a.id];
       const card = document.createElement('div');
-      card.className = `ach-card${isUnlocked ? ' unlocked' : ''}`;
+      card.className = `ach-card${state.achievements[a.id] ? ' unlocked' : ''}`;
       card.innerHTML = `
         <span class="ach-icon">${a.icon}</span>
         <span class="ach-name">${a.name}</span>
@@ -147,17 +129,15 @@ function renderAchievements() {
       `;
       group.appendChild(card);
     });
-
     grid.appendChild(group);
   });
 }
 
-// ── AMBIENT MUSIC (Web Audio API) ───────
+// ── AMBIENT MUSIC ──────────────────────
 
-let musicCtx      = null;
-let musicNodes    = [];
-let musicMuted    = false;
-let currentMood   = null;   // 'calm' | 'boss'
+let musicCtx    = null;
+let musicNodes  = [];
+let currentMood = null;
 
 function getMusicCtx() {
   if (!musicCtx) musicCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -167,135 +147,71 @@ function getMusicCtx() {
 
 function stopMusic() {
   musicNodes.forEach(n => { try { n.stop(); } catch (_) {} });
-  musicNodes = [];
+  musicNodes  = [];
   currentMood = null;
 }
 
 function startMusic(mood = 'calm') {
-  if (musicMuted) return;
+  if (state.muted) return;
   if (currentMood === mood) return;
   stopMusic();
   currentMood = mood;
+  const ctx    = getMusicCtx();
 
-  const ctx = getMusicCtx();
-
-  // Master gain
   const master = ctx.createGain();
   master.gain.setValueAtTime(0, ctx.currentTime);
   master.gain.linearRampToValueAtTime(0.18, ctx.currentTime + 3);
   master.connect(ctx.destination);
   musicNodes.push({ stop: () => {
     master.gain.linearRampToValueAtTime(0, ctx.currentTime + 2);
-    setTimeout(() => master.disconnect(), 2500);
+    setTimeout(() => { try { master.disconnect(); } catch (_) {} }, 2500);
   }});
 
   if (mood === 'calm') {
-    // Slow, calm drone — two detuned oscillators + a gentle pulse
-    const freqs = [55, 82.5, 110, 165];
-    freqs.forEach((freq, i) => {
+    [55, 82.5, 110, 165].forEach((freq, i) => {
       const osc = ctx.createOscillator();
       const vol = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = freq + (i * 0.3);  // slight detune for warmth
-
-      vol.gain.value = 0.15 - i * 0.02;
-      osc.connect(vol);
-      vol.connect(master);
-      osc.start();
+      osc.type            = 'sine';
+      osc.frequency.value = freq + i * 0.3;
+      vol.gain.value      = 0.15 - i * 0.02;
+      osc.connect(vol); vol.connect(master); osc.start();
       musicNodes.push(osc);
     });
-
-    // Slow LFO tremolo
-    const lfo = ctx.createOscillator();
+    const lfo     = ctx.createOscillator();
     const lfoGain = ctx.createGain();
-    lfo.frequency.value = 0.12;
-    lfoGain.gain.value  = 0.06;
-    lfo.connect(lfoGain);
-    lfoGain.connect(master.gain);
-    lfo.start();
+    lfo.frequency.value = 0.12; lfoGain.gain.value = 0.06;
+    lfo.connect(lfoGain); lfoGain.connect(master.gain); lfo.start();
     musicNodes.push(lfo);
 
   } else if (mood === 'boss') {
-    // Tense, low rumble — lower freqs, faster tremolo, dissonant interval
-    const freqs = [36.7, 55, 73.4, 98];
-    freqs.forEach((freq, i) => {
-      const osc  = ctx.createOscillator();
-      const vol  = ctx.createGain();
-      osc.type   = i % 2 === 0 ? 'sawtooth' : 'sine';
+    [36.7, 55, 73.4, 98].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const vol = ctx.createGain();
+      osc.type            = i % 2 === 0 ? 'sawtooth' : 'sine';
       osc.frequency.value = freq;
-      vol.gain.value = 0.06 - i * 0.01;
-      osc.connect(vol);
-      vol.connect(master);
-      osc.start();
+      vol.gain.value      = 0.06 - i * 0.01;
+      osc.connect(vol); vol.connect(master); osc.start();
       musicNodes.push(osc);
     });
-
-    // Faster, more aggressive tremolo
     const lfo     = ctx.createOscillator();
     const lfoGain = ctx.createGain();
-    lfo.frequency.value = 0.6;
-    lfoGain.gain.value  = 0.08;
-    lfo.connect(lfoGain);
-    lfoGain.connect(master.gain);
-    lfo.start();
+    lfo.frequency.value = 0.6; lfoGain.gain.value = 0.08;
+    lfo.connect(lfoGain); lfoGain.connect(master.gain); lfo.start();
     musicNodes.push(lfo);
 
-    // Subtle rhythmic pulse every ~2 seconds
-    let beat = 0;
     const pulse = setInterval(() => {
       if (currentMood !== 'boss') { clearInterval(pulse); return; }
       try {
-        const p   = ctx.createOscillator();
-        const pg  = ctx.createGain();
-        p.type    = 'sine';
-        p.frequency.value = 55;
+        const p  = ctx.createOscillator();
+        const pg = ctx.createGain();
+        p.type = 'sine'; p.frequency.value = 55;
         pg.gain.setValueAtTime(0.12, ctx.currentTime);
         pg.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.4);
-        p.connect(pg);
-        pg.connect(ctx.destination);
-        p.start();
-        p.stop(ctx.currentTime + 0.5);
-        beat++;
+        p.connect(pg); pg.connect(ctx.destination);
+        p.start(); p.stop(ctx.currentTime + 0.5);
       } catch (_) {}
     }, 2000);
     musicNodes.push({ stop: () => clearInterval(pulse) });
-  }
-}
-
-function toggleMute() {
-  musicMuted = !musicMuted;
-  const btn = document.getElementById('btn-mute');
-  if (musicMuted) {
-    stopMusic();
-    btn.textContent = '♪̶';
-    btn.classList.add('muted');
-  } else {
-    btn.textContent = '♪';
-    btn.classList.remove('muted');
-    if (interval) startMusic(currentEnemy?.isBoss ? 'boss' : 'calm');
-  }
-}
-
-// ── PERSISTENCE ────────────────────────
-
-function saveState() {
-  localStorage.setItem('focusBattle', JSON.stringify(state));
-}
-
-function loadState() {
-  const saved = localStorage.getItem('focusBattle');
-  if (!saved) return;
-  try {
-    const parsed = JSON.parse(saved);
-    if (!parsed.version || parsed.version < STATE_VERSION) {
-      console.info('Old save detected — resetting.');
-      localStorage.removeItem('focusBattle');
-      return;
-    }
-    state = { ...DEFAULT_STATE, ...parsed };
-  } catch (e) {
-    console.warn('Save corrupted, starting fresh.');
-    localStorage.removeItem('focusBattle');
   }
 }
 
@@ -310,12 +226,12 @@ function getCtx() {
 }
 
 function playTone(freq, type = 'sine', duration = 0.15, gain = 0.25, delay = 0) {
+  if (state.muted) return;
   try {
     const ctx = getCtx();
     const osc = ctx.createOscillator();
     const vol = ctx.createGain();
-    osc.connect(vol);
-    vol.connect(ctx.destination);
+    osc.connect(vol); vol.connect(ctx.destination);
     osc.type = type;
     osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
     vol.gain.setValueAtTime(0, ctx.currentTime + delay);
@@ -341,37 +257,60 @@ const SFX = {
   achievement() { [523,659,784,1047].forEach((f,i) => playTone(f,'triangle',0.3,0.2,i*0.1)); },
 };
 
+// ── PERSISTENCE ────────────────────────
+
+function saveState() {
+  localStorage.setItem('focusBattle', JSON.stringify(state));
+}
+
+function loadState() {
+  const saved = localStorage.getItem('focusBattle');
+  if (!saved) return;
+  try {
+    const parsed = JSON.parse(saved);
+    if (!parsed.version || parsed.version < STATE_VERSION) {
+      console.info('Old save — resetting.');
+      localStorage.removeItem('focusBattle');
+      return;
+    }
+    state = { ...DEFAULT_STATE, ...parsed };
+  } catch (e) {
+    console.warn('Save corrupted, starting fresh.');
+    localStorage.removeItem('focusBattle');
+  }
+}
+
 // ── ENEMIES & BOSSES ───────────────────
 
 const ENEMIES = [
   { name: 'Distraction Goblin',    hp: 80,  xpReward: 40,  tier: 'Common',
-    ability: { type: 'xp_steal',   label: 'XP Thief',    desc: 'Steals 15 XP on quit',      stealAmt: 15 } },
+    ability: { type: 'xp_steal',   label: 'XP Thief',    desc: 'Steals 15 XP on quit',     stealAmt: 15 } },
   { name: 'Notification Wraith',   hp: 100, xpReward: 50,  tier: 'Common',
-    ability: { type: 'hp_drain',   label: 'Soul Drain',  desc: 'Drains 5 HP every 10 min',  drainAmt: 5  } },
+    ability: { type: 'hp_drain',   label: 'Soul Drain',  desc: 'Drains 5 HP / 10 min',     drainAmt: 5  } },
   { name: 'Procrastination Troll', hp: 130, xpReward: 65,  tier: 'Uncommon',
-    ability: { type: 'time_curse', label: 'Time Curse',  desc: 'Adds 2 min at halfway'                   } },
+    ability: { type: 'time_curse', label: 'Time Curse',  desc: 'Adds 2 min at halfway'                  } },
   { name: 'Doom Scroll Demon',     hp: 160, xpReward: 80,  tier: 'Rare',
-    ability: { type: 'xp_steal',   label: 'XP Thief',    desc: 'Steals 25 XP on quit',      stealAmt: 25 } },
+    ability: { type: 'xp_steal',   label: 'XP Thief',    desc: 'Steals 25 XP on quit',     stealAmt: 25 } },
   { name: 'Brain Fog Specter',     hp: 200, xpReward: 100, tier: 'Rare',
-    ability: { type: 'hp_drain',   label: 'Soul Drain',  desc: 'Drains 8 HP every 10 min',  drainAmt: 8  } },
+    ability: { type: 'hp_drain',   label: 'Soul Drain',  desc: 'Drains 8 HP / 10 min',     drainAmt: 8  } },
 ];
 
 const BOSSES = [
   { name: 'The Procrastinator King', hp: 500, xpReward: 200, tier: 'Boss', isBoss: true,
-    ability: { type: 'hp_drain',   label: 'Royal Drain',   desc: 'Drains 15 HP every 10 min', drainAmt: 15 } },
+    ability: { type: 'hp_drain',   label: 'Royal Drain',   desc: 'Drains 15 HP / 10 min',  drainAmt: 15 } },
   { name: 'Lord of Infinite Scroll', hp: 700, xpReward: 300, tier: 'Boss', isBoss: true,
-    ability: { type: 'xp_steal',   label: 'Soul Harvest',  desc: 'Steals 50 XP on quit',      stealAmt: 50 } },
+    ability: { type: 'xp_steal',   label: 'Soul Harvest',  desc: 'Steals 50 XP on quit',   stealAmt: 50 } },
   { name: 'Eternal Void Sovereign',  hp: 900, xpReward: 450, tier: 'Boss', isBoss: true,
-    ability: { type: 'time_curse', label: 'Temporal Rift', desc: 'Adds 5 min at halfway'                   } },
+    ability: { type: 'time_curse', label: 'Temporal Rift', desc: 'Adds 5 min at halfway'               } },
 ];
 
 const SHOP_ITEMS = [
-  { id: 'potion',  name: 'Health Potion',     desc: 'Restore 30 HP instantly',         cost: 30, icon: '⚗', instant: true  },
-  { id: 'elixir',  name: 'Elixir of Rebirth', desc: 'Restore 50 HP — even from zero',  cost: 80, icon: '✦', instant: true  },
-  { id: 'shield',  name: 'Iron Shield',       desc: 'Block the next HP penalty',        cost: 50, icon: '⬡', instant: false },
-  { id: 'tome',    name: 'XP Tome',           desc: '+25 bonus XP on next completion',  cost: 40, icon: '◈', instant: false },
-  { id: 'charm',   name: 'Battle Charm',      desc: 'Negate the next XP steal',         cost: 60, icon: '⧖', instant: false },
-  { id: 'crystal', name: 'Dark Crystal',      desc: '2× XP reward from next boss',      cost: 70, icon: '◇', instant: false },
+  { id: 'potion',  name: 'Health Potion',     desc: 'Restore 30 HP instantly',        cost: 30, icon: '⚗', instant: true  },
+  { id: 'elixir',  name: 'Elixir of Rebirth', desc: 'Restore 50 HP — even from zero', cost: 80, icon: '✦', instant: true  },
+  { id: 'shield',  name: 'Iron Shield',       desc: 'Block the next HP penalty',       cost: 50, icon: '⬡', instant: false },
+  { id: 'tome',    name: 'XP Tome',           desc: '+25 bonus XP on next completion', cost: 40, icon: '◈', instant: false },
+  { id: 'charm',   name: 'Battle Charm',      desc: 'Negate the next XP steal',        cost: 60, icon: '⧖', instant: false },
+  { id: 'crystal', name: 'Dark Crystal',      desc: '2× XP reward from next boss',     cost: 70, icon: '◇', instant: false },
 ];
 
 const DAILY_CHALLENGES = [
@@ -392,6 +331,61 @@ let timeCurseAdded  = false;
 let regenTimer      = null;
 let sessionNoDamage = true;
 
+// ── DRAWER ─────────────────────────────
+
+document.getElementById('btn-menu').addEventListener('click', openDrawer);
+document.getElementById('drawer-close').addEventListener('click', closeDrawer);
+document.getElementById('drawer-overlay').addEventListener('click', closeDrawer);
+
+function openDrawer() {
+  document.getElementById('drawer-overlay').classList.remove('hidden');
+  document.getElementById('drawer-overlay').classList.add('visible');
+  document.getElementById('drawer').classList.add('open');
+}
+
+function closeDrawer() {
+  document.getElementById('drawer-overlay').classList.remove('visible');
+  document.getElementById('drawer').classList.remove('open');
+  setTimeout(() => document.getElementById('drawer-overlay').classList.add('hidden'), 300);
+}
+
+// ── SETTINGS ───────────────────────────
+
+function renderSettings() {
+  document.getElementById('settings-mute-btn').textContent = state.muted ? 'Off' : 'On';
+}
+
+document.getElementById('settings-mute-btn').addEventListener('click', () => {
+  state.muted = !state.muted;
+  if (state.muted) stopMusic();
+  else if (interval) startMusic(currentEnemy?.isBoss ? 'boss' : 'calm');
+  renderSettings();
+  saveState();
+});
+
+document.getElementById('settings-clear-history-btn').addEventListener('click', () => {
+  if (!confirm('Clear your session history?')) return;
+  state.sessionHistory = [];
+  saveState();
+  showMessage('Session history cleared.');
+});
+
+document.getElementById('settings-reset-btn').addEventListener('click', () => {
+  if (!confirm('Reset ALL progress? This cannot be undone.')) return;
+  // Stop any running systems before resetting
+  if (interval) { clearInterval(interval); interval = null; stopMusic(); hideEnemyCard(); currentEnemy = null; }
+  if (regenTimer) { clearInterval(regenTimer); regenTimer = null; }
+  closeModal('death-screen');
+  localStorage.removeItem('focusBattle');
+  state = { ...DEFAULT_STATE };
+  saveState();
+  pickDailyChallenge();
+  updateStats();
+  resetTimer();
+  renderDailyChallenge();
+  showMessage('Save data reset. Starting fresh!');
+});
+
 // ── STATS UI ───────────────────────────
 
 function updateStats() {
@@ -401,8 +395,10 @@ function updateStats() {
   document.getElementById('streak-val').textContent = state.streak;
   document.getElementById('hp-fill').style.width    = `${Math.max(0, state.hp)}%`;
 
-  const xpIntoLevel = state.xp % XP_PER_LEVEL;
-  document.getElementById('xp-fill').style.width = `${(xpIntoLevel / XP_PER_LEVEL) * 100}%`;
+  const prevXP  = (state.level - 1) * XP_PER_LEVEL;
+  const nextXP  = state.level * XP_PER_LEVEL;
+  const xpFill  = ((state.xp - prevXP) / (nextXP - prevXP)) * 100;
+  document.getElementById('xp-fill').style.width = `${Math.min(100, Math.max(0, xpFill))}%`;
 
   document.getElementById('boss-incoming-stat').style.display =
     (state.level % 5 === 0 && !interval) ? 'flex' : 'none';
@@ -444,7 +440,7 @@ function gainXP(amount) {
 function loseHP(amount) {
   if (state.shieldActive) {
     state.shieldActive = false;
-    showMessage('⬡ Shield absorbed the hit! No HP lost.');
+    showMessage('⬡ Shield absorbed the hit!');
     updateStats();
     return;
   }
@@ -498,7 +494,10 @@ function updateRegenCountdown() {
 }
 
 function showDeathScreen() { updateRegenCountdown(); openModal('death-screen'); }
-function hideDeathScreen()  { closeModal('death-screen'); if (regenTimer) { clearInterval(regenTimer); regenTimer = null; } }
+function hideDeathScreen()  {
+  closeModal('death-screen');
+  if (regenTimer) { clearInterval(regenTimer); regenTimer = null; }
+}
 
 // ── STREAK ─────────────────────────────
 
@@ -508,7 +507,7 @@ function getYesterdayStr() { return new Date(Date.now() - 86400000).toISOString(
 function handleStreak() {
   const today = getTodayStr();
   if (state.lastSessionDate === today) return 0;
-  state.streak = (state.lastSessionDate === getYesterdayStr()) ? state.streak + 1 : 1;
+  state.streak          = (state.lastSessionDate === getYesterdayStr()) ? state.streak + 1 : 1;
   state.lastSessionDate = today;
   checkAchievements('streak_update');
   return Math.min(state.streak * 5, 25);
@@ -519,7 +518,7 @@ function handleStreak() {
 function pickDailyChallenge() {
   const today = getTodayStr();
   if (state.dailyChallenge?.date === today) return;
-  const hash  = today.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+  const hash   = today.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
   const picked = DAILY_CHALLENGES[hash % DAILY_CHALLENGES.length];
   state.dailyChallenge = { ...picked, progress: 0, date: today };
   saveState();
@@ -545,13 +544,13 @@ function renderDailyChallenge() {
 function tickChallenge(event, ctx = {}) {
   const dc = state.dailyChallenge;
   if (!dc || dc.progress >= dc.target) return;
-  let progress = false;
-  if (dc.type === 'complete'      && event === 'session_complete')                     progress = true;
-  if (dc.type === 'complete_long' && event === 'session_complete' && ctx.mins >= 50)   progress = true;
-  if (dc.type === 'defeat_rare'   && event === 'session_complete' && ctx.tier==='Rare') progress = true;
-  if (dc.type === 'defeat_boss'   && event === 'session_complete' && ctx.isBoss)       progress = true;
-  if (dc.type === 'streak_focus'  && event === 'session_complete' && state.streak >= 3) progress = true;
-  if (progress) {
+  let hit = false;
+  if (dc.type === 'complete'      && event === 'session_complete')                    hit = true;
+  if (dc.type === 'complete_long' && event === 'session_complete' && ctx.mins >= 50)  hit = true;
+  if (dc.type === 'defeat_rare'   && event === 'session_complete' && ctx.tier==='Rare') hit = true;
+  if (dc.type === 'defeat_boss'   && event === 'session_complete' && ctx.isBoss)      hit = true;
+  if (dc.type === 'streak_focus'  && event === 'session_complete' && state.streak >= 3) hit = true;
+  if (hit) {
     state.dailyChallenge.progress++;
     if (state.dailyChallenge.progress >= dc.target) {
       gainXP(dc.xpBonus);
@@ -573,18 +572,18 @@ function getBoss() {
   const cycle = Math.floor(idx / BOSSES.length);
   return {
     ...boss,
-    ability:   { ...boss.ability },
-    hp:        Math.round(boss.hp * (1 + cycle * 0.5)),
-    xpReward:  Math.round(boss.xpReward * (1 + cycle * 0.3)),
+    ability:  { ...boss.ability },
+    hp:       Math.round(boss.hp * (1 + cycle * 0.5)),
+    xpReward: Math.round(boss.xpReward * (1 + cycle * 0.3)),
   };
 }
 
 // ── ENEMY SYSTEM ───────────────────────
 
 function spawnEnemy() {
-  const template = isBossLevel() ? getBoss() : ENEMIES[Math.floor(Math.random() * ENEMIES.length)];
-  currentEnemy   = { ...template, ability: { ...template.ability }, currentHp: template.hp, maxHp: template.hp };
-  timeCurseAdded = false;
+  const template  = isBossLevel() ? getBoss() : ENEMIES[Math.floor(Math.random() * ENEMIES.length)];
+  currentEnemy    = { ...template, ability: { ...template.ability }, currentHp: template.hp, maxHp: template.hp };
+  timeCurseAdded  = false;
   sessionNoDamage = true;
 
   document.getElementById('enemy-name').textContent          = currentEnemy.name;
@@ -599,7 +598,7 @@ function spawnEnemy() {
   card.classList.toggle('boss-card', !!currentEnemy.isBoss);
 
   if (currentEnemy.isBoss) { SFX.boss(); startMusic('boss'); }
-  else                       startMusic('calm');
+  else startMusic('calm');
 
   updateEnemyBar();
   card.classList.remove('hidden');
@@ -645,9 +644,9 @@ function triggerEnemyAbility(context) {
 
   if (ab.type === 'time_curse' && context === 'halfway' && !timeCurseAdded) {
     timeCurseAdded = true;
-    const addMins = currentEnemy.isBoss ? 5 : 2;
+    const addMins  = currentEnemy.isBoss ? 5 : 2;
     SFX.ability();
-    showMessage(`⏳ ${currentEnemy.name} cursed you! +${addMins} minutes!`);
+    showMessage(`⏳ Time Curse! +${addMins} minutes added!`);
     return { addSeconds: addMins * 60 };
   }
 
@@ -660,8 +659,8 @@ function defeatEnemy() {
   updateEnemyBar();
 
   state.totalSessions++;
-  if (currentEnemy.isBoss)             state.totalBossKills++;
-  if (currentEnemy.tier === 'Rare')    state.totalRareKills++;
+  if (currentEnemy.isBoss)          state.totalBossKills++;
+  if (currentEnemy.tier === 'Rare') state.totalRareKills++;
 
   const streakBonus  = handleStreak();
   const xpBonus      = state.xpBoostActive ? 25 : 0;
@@ -670,33 +669,29 @@ function defeatEnemy() {
   if (state.xpBoostActive) state.xpBoostActive = false;
   if (state.crystalActive && currentEnemy.isBoss) state.crystalActive = false;
 
-  const total      = currentEnemy.xpReward + xpBonus + streakBonus + crystalBonus;
-  const bonusParts = [];
-  if (xpBonus)     bonusParts.push(`+${xpBonus} Tome`);
-  if (streakBonus) bonusParts.push(`+${streakBonus} Streak ×${state.streak}`);
-  if (crystalBonus)bonusParts.push(`+${crystalBonus} Crystal ×2`);
+  const total = currentEnemy.xpReward + xpBonus + streakBonus + crystalBonus;
+  const parts = [];
+  if (xpBonus)     parts.push(`+${xpBonus} Tome`);
+  if (streakBonus) parts.push(`+${streakBonus} Streak`);
+  if (crystalBonus)parts.push(`+${crystalBonus} Crystal`);
 
   SFX.defeat();
   stopMusic();
+  endSession();
   gainXP(total);
 
   let msg = `⚔ ${currentEnemy.name} defeated! +${total} XP`;
-  if (bonusParts.length) msg += ` (${bonusParts.join(', ')})`;
-  if (state.streak > 1)  msg += ` 🔥 ${state.streak}d streak`;
+  if (parts.length) msg += ` (${parts.join(', ')})`;
   showMessage(msg);
 
   checkAchievements('session_complete', {
-    mins:      selectedMinutes,
-    tier:      currentEnemy.tier,
-    isBoss:    !!currentEnemy.isBoss,
-    enemyName: currentEnemy.name,
-    noDamage:  sessionNoDamage,
+    mins: selectedMinutes, tier: currentEnemy.tier,
+    isBoss: !!currentEnemy.isBoss, enemyName: currentEnemy.name,
+    noDamage: sessionNoDamage,
   });
 
   tickChallenge('session_complete', {
-    mins:   selectedMinutes,
-    tier:   currentEnemy.tier,
-    isBoss: !!currentEnemy.isBoss,
+    mins: selectedMinutes, tier: currentEnemy.tier, isBoss: !!currentEnemy.isBoss,
   });
 
   pushHistory({ completed: true, xpGained: total });
@@ -704,26 +699,27 @@ function defeatEnemy() {
   currentEnemy = null;
 }
 
-function hideEnemyCard() {
+function endSession() {
+  document.body.classList.remove('session-active');
+  document.getElementById('start-btn').textContent = 'Start Focus';
+}
   const card = document.getElementById('enemy-card');
   card.classList.remove('visible');
   setTimeout(() => { card.classList.add('hidden'); card.classList.remove('boss-card'); }, 500);
-}
+
 
 // ── SESSION HISTORY ─────────────────────
 
 function pushHistory({ completed, xpGained }) {
   const now   = new Date();
   const entry = {
-    timestamp: now.getTime(),
     date:      now.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }),
     time:      now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' }),
     enemyName: currentEnemy ? currentEnemy.name : '—',
     tier:      currentEnemy ? currentEnemy.tier  : '—',
     isBoss:    currentEnemy ? !!currentEnemy.isBoss : false,
     duration:  selectedMinutes,
-    xpGained,
-    completed,
+    xpGained, completed,
   };
   state.sessionHistory.unshift(entry);
   if (state.sessionHistory.length > 20) state.sessionHistory.pop();
@@ -738,7 +734,7 @@ function renderHistory() {
     return;
   }
   state.sessionHistory.forEach(s => {
-    const row = document.createElement('div');
+    const row     = document.createElement('div');
     row.className = `history-row${s.isBoss ? ' boss-row' : ''}${!s.completed ? ' quit-row' : ''}`;
     row.innerHTML = `
       <div class="history-left">
@@ -768,6 +764,8 @@ document.getElementById('start-btn').addEventListener('click', function () {
 
   spawnEnemy();
   SFX.start();
+  document.body.classList.add('session-active');
+  document.getElementById('start-btn').textContent = 'Focusing…';
 
   let totalSeconds   = selectedMinutes * 60;
   let minutesPassed  = 0;
@@ -808,6 +806,7 @@ document.getElementById('btn-stop').addEventListener('click', function () {
   clearInterval(interval);
   interval = null;
   stopMusic();
+  endSession();
 
   triggerEnemyAbility('quit');
   loseHP(HP_LOSS_ON_QUIT);
@@ -848,7 +847,7 @@ function renderShop() {
     const disabled = !canAfford || alreadyOwned || alreadyActive;
     const btnLabel = alreadyActive ? 'Active' : alreadyOwned ? 'Owned' : `${item.cost} XP`;
 
-    const card = document.createElement('div');
+    const card     = document.createElement('div');
     card.className = `shop-card${!canAfford ? ' locked' : ''}${alreadyActive || alreadyOwned ? ' active-item' : ''}`;
     card.innerHTML = `
       <span class="shop-icon">${item.icon}</span>
@@ -878,11 +877,6 @@ function buyItem(item) {
   }
   updateStats();
 }
-
-document.getElementById('btn-shop').addEventListener('click', () => { renderShop(); openModal('shop-modal'); });
-document.getElementById('shop-close').addEventListener('click', () => closeModal('shop-modal'));
-document.getElementById('shop-modal').addEventListener('click', function (e) { if (e.target === this) closeModal('shop-modal'); });
-document.getElementById('death-shop-btn').addEventListener('click', () => { renderShop(); openModal('shop-modal'); });
 
 // ── INVENTORY ──────────────────────────
 
@@ -929,25 +923,25 @@ function equipItem(id) {
   updateStats();
 }
 
-document.getElementById('btn-inv').addEventListener('click', () => { renderInventory(); openModal('inv-modal'); });
-document.getElementById('inv-close').addEventListener('click', () => closeModal('inv-modal'));
-document.getElementById('inv-modal').addEventListener('click', function (e) { if (e.target === this) closeModal('inv-modal'); });
+// ── MODAL / DRAWER WIRING ──────────────
 
-// ── HISTORY ────────────────────────────
+function wire(openId, modalId, closeId, onOpen) {
+  document.getElementById(openId).addEventListener('click', () => {
+    closeDrawer();
+    if (onOpen) onOpen();
+    openModal(modalId);
+  });
+  document.getElementById(closeId).addEventListener('click', () => closeModal(modalId));
+  document.getElementById(modalId).addEventListener('click', function (e) { if (e.target === this) closeModal(modalId); });
+}
 
-document.getElementById('btn-history').addEventListener('click', () => { renderHistory(); openModal('history-modal'); });
-document.getElementById('history-close').addEventListener('click', () => closeModal('history-modal'));
-document.getElementById('history-modal').addEventListener('click', function (e) { if (e.target === this) closeModal('history-modal'); });
+wire('btn-shop',         'shop-modal',         'shop-close',         renderShop);
+wire('btn-inv',          'inv-modal',          'inv-close',          renderInventory);
+wire('btn-history',      'history-modal',      'history-close',      renderHistory);
+wire('btn-achievements', 'achievements-modal', 'achievements-close', renderAchievements);
+wire('btn-settings',     'settings-modal',     'settings-close',     renderSettings);
 
-// ── ACHIEVEMENTS ───────────────────────
-
-document.getElementById('btn-achievements').addEventListener('click', () => { renderAchievements(); openModal('achievements-modal'); });
-document.getElementById('achievements-close').addEventListener('click', () => closeModal('achievements-modal'));
-document.getElementById('achievements-modal').addEventListener('click', function (e) { if (e.target === this) closeModal('achievements-modal'); });
-
-// ── MUTE ───────────────────────────────
-
-document.getElementById('btn-mute').addEventListener('click', toggleMute);
+document.getElementById('death-shop-btn').addEventListener('click', () => { renderShop(); openModal('shop-modal'); });
 
 // ── MODAL HELPERS ───────────────────────
 
