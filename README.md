@@ -7,24 +7,28 @@ A gamified focus timer that turns study sessions into battles. ⚔️⏱️
 ## Features
 
 **Core Loop**
-- Set a focus timer (25 / 50 / 90 minutes) and stay locked in
+- Set a focus timer (25 / 50 / 90 minutes, or any custom duration) and stay locked in
 - Gain XP for completing sessions — quit early and lose HP
 - Level up as your XP grows
 
 **Enemy Battles**
 - A random enemy spawns on session start — defeat it by finishing
-- 5 regular enemies across Common, Uncommon, Rare tiers
+- 9 enemies across Common, Uncommon, and Rare tiers
 - Enemy HP drains proportionally as you focus
 
 **Boss Battles**
 - Every 5 levels a boss spawns with scaled HP and XP
 - 3 rotating bosses — The Procrastinator King, Lord of Infinite Scroll, Eternal Void Sovereign
-- Bosses trigger a distinct ambient music shift and gold card treatment
+- Boss sessions trigger a gold card, tense ambient music, and gold particle mode
 
 **Enemy Special Abilities**
 - **XP Thief** — steals XP if you quit early
 - **Soul Drain** — drains HP every 10 minutes
+- **HP Leech** — drains your HP and heals the enemy simultaneously
 - **Time Curse** — adds extra minutes at halfway (5 min for bosses)
+- **Double Curse** — adds 1 min at both the 1/3 and 2/3 marks
+- **Focus Tax** — cuts your XP reward by 25% if you took any damage
+- **XP Decay** — XP reward shrinks by 8 for every 10 minutes elapsed
 
 **Achievements (12 total)**
 | Category | Achievement | Condition |
@@ -42,12 +46,28 @@ A gamified focus timer that turns study sessions into battles. ⚔️⏱️
 | Progression | Rising | Reach Level 5 |
 | Progression | Ascendant | Reach Level 10 |
 
+**Stats Page**
+- Total sessions completed
+- Total time focused (hours + minutes)
+- Bosses defeated and Rare kills
+- Total XP ever earned
+- Current level, highest streak, feats unlocked
+
+**Animated Particles**
+- Canvas-based floating particle background — no libraries
+- Normal sessions: slow white drift
+- Boss sessions: faster gold particles
+- Toggle off in Settings if you prefer clean
+
+**Custom Timer**
+- Hit Custom in the duration row and type any value from 5 to 180 minutes
+- Press Enter to confirm, then start as normal
+
 **Ambient Music**
 - Procedural music via Web Audio API — no external files
 - Calm drone during normal sessions
 - Deep tense rumble with rhythmic pulse during boss fights
-- Music shifts automatically when a boss spawns
-- Toggle sound from the Settings panel
+- Toggle sound from Settings
 
 **Daily Challenge**
 - One challenge per day, deterministic by date
@@ -75,6 +95,7 @@ A gamified focus timer that turns study sessions into battles. ⚔️⏱️
 
 **Settings Panel**
 - Toggle sound on/off
+- Toggle particle background on/off
 - Clear session history
 - Reset all save data
 
@@ -88,11 +109,12 @@ A gamified focus timer that turns study sessions into battles. ⚔️⏱️
 
 - Python (Flask) — reserved for future backend features
 - HTML / CSS / JavaScript (vanilla)
+- Web Audio API — music and sound effects
+- Canvas API — particle background
 
 ---
 
 ## Roadmap
 
-- [ ] More enemy types and boss variants
-- [ ] Custom timer duration
+- [ ] More boss variants
 - [ ] Multiplayer streak challenge
