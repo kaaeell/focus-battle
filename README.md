@@ -1,6 +1,6 @@
 # Focus Battle
 
-A gamified focus timer that turns study sessions into battles. ⚔️⏱️
+A gamified focus timer that turns study sessions into battles.
 
 ---
 
@@ -8,27 +8,43 @@ A gamified focus timer that turns study sessions into battles. ⚔️⏱️
 
 **Core Loop**
 - Set a focus timer (25 / 50 / 90 minutes, or any custom duration) and stay locked in
-- Gain XP for completing sessions — quit early and lose HP
+- Gain XP for completing sessions -- quit early and lose HP
 - Level up as your XP grows
 
+**Intro Screen**
+- Cinematic title screen on every load with a staggered fade-in
+- Auto-dismisses after 3 seconds or on click
+- No library -- pure CSS keyframes
+
 **Enemy Battles**
-- A random enemy spawns on session start — defeat it by finishing
+- A random enemy spawns on session start -- defeat it by finishing
 - 9 enemies across Common, Uncommon, and Rare tiers
 - Enemy HP drains proportionally as you focus
 
 **Boss Battles**
 - Every 5 levels a boss spawns with scaled HP and XP
-- 3 rotating bosses — The Procrastinator King, Lord of Infinite Scroll, Eternal Void Sovereign
-- Boss sessions trigger a gold card, tense ambient music, and gold particle mode
+- 3 rotating bosses: The Procrastinator King, Lord of Infinite Scroll, Eternal Void Sovereign
+- Boss sessions trigger a gold card, tense ambient music, gold particles, and a screen flash on abilities
+
+**Attack Animations**
+- Timer shakes when a Time Curse or Double Curse fires
+- Red screen flash when HP is lost
+- Gold screen flash when XP is stolen
+- All via CSS class toggling -- no libraries
 
 **Enemy Special Abilities**
-- **XP Thief** — steals XP if you quit early
-- **Soul Drain** — drains HP every 10 minutes
-- **HP Leech** — drains your HP and heals the enemy simultaneously
-- **Time Curse** — adds extra minutes at halfway (5 min for bosses)
-- **Double Curse** — adds 1 min at both the 1/3 and 2/3 marks
-- **Focus Tax** — cuts your XP reward by 25% if you took any damage
-- **XP Decay** — XP reward shrinks by 8 for every 10 minutes elapsed
+- **XP Thief** -- steals XP if you quit early
+- **Soul Drain** -- drains HP every 10 minutes
+- **HP Leech** -- drains your HP and heals the enemy simultaneously
+- **Time Curse** -- adds extra minutes at halfway (5 min for bosses)
+- **Double Curse** -- adds 1 min at both the 1/3 and 2/3 marks
+- **Focus Tax** -- cuts your XP reward by 25% if you took any damage
+- **XP Decay** -- XP reward shrinks by 8 for every 10 minutes elapsed
+
+**Sound Visualizer**
+- 16 frequency bars below the timer that pulse to the ambient music
+- White in normal mode, gold during boss fights
+- Built on Web Audio API AnalyserNode -- no external libraries
 
 **Achievements (12 total)**
 | Category | Achievement | Condition |
@@ -54,7 +70,7 @@ A gamified focus timer that turns study sessions into battles. ⚔️⏱️
 - Current level, highest streak, feats unlocked
 
 **Animated Particles**
-- Canvas-based floating particle background — no libraries
+- Canvas-based floating particle background -- no libraries
 - Normal sessions: slow white drift
 - Boss sessions: faster gold particles
 - Toggle off in Settings if you prefer clean
@@ -64,7 +80,7 @@ A gamified focus timer that turns study sessions into battles. ⚔️⏱️
 - Press Enter to confirm, then start as normal
 
 **Ambient Music**
-- Procedural music via Web Audio API — no external files
+- Procedural music via Web Audio API -- no external files
 - Calm drone during normal sessions
 - Deep tense rumble with rhythmic pulse during boss fights
 - Toggle sound from Settings
@@ -75,13 +91,13 @@ A gamified focus timer that turns study sessions into battles. ⚔️⏱️
 - Shown in a fixed bottom-left panel
 
 **Streak System**
-- Consecutive daily sessions build a streak 🔥
+- Consecutive daily sessions build a streak
 - Bonus XP: +5 per streak day, capped at +25
 
 **Death Screen + HP Regen**
 - HP hitting 0 triggers a death screen with live regen countdown
 - +5 HP every 15 minutes passively, capped at 50
-- Calculated from time of death — works across page refreshes
+- Calculated from time of death -- works across page refreshes
 
 **Shop (Apothecary)**
 | Item | Cost | Effect |
@@ -91,7 +107,7 @@ A gamified focus timer that turns study sessions into battles. ⚔️⏱️
 | Iron Shield | 50 XP | Block next HP penalty |
 | XP Tome | 40 XP | +25 bonus XP on next completion |
 | Battle Charm | 60 XP | Negate next XP steal |
-| Dark Crystal | 70 XP | 2× XP from next boss |
+| Dark Crystal | 70 XP | 2x XP from next boss |
 
 **Settings Panel**
 - Toggle sound on/off
@@ -99,18 +115,18 @@ A gamified focus timer that turns study sessions into battles. ⚔️⏱️
 - Clear session history
 - Reset all save data
 
-**Session History** — Last 20 sessions with enemy, result, XP, and time
+**Session History** -- Last 20 sessions with enemy, result, XP, and time
 
-**Persistence** — All progress saved to `localStorage`
+**Persistence** -- All progress saved to localStorage
 
 ---
 
 ## Tech Stack
 
-- Python (Flask) — reserved for future backend features
+- Python (Flask) -- reserved for future backend features
 - HTML / CSS / JavaScript (vanilla)
-- Web Audio API — music and sound effects
-- Canvas API — particle background
+- Web Audio API -- music, sound effects, and visualizer
+- Canvas API -- particle background
 
 ---
 
