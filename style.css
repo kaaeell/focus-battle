@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400&display=swap');
 
+/* ══════════════════════════════════════════
+   FOCUS BATTLE — style.css
+   ══════════════════════════════════════════ */
+
 :root {
   --bg:            #080808;
   --surface:       rgba(255, 255, 255, 0.04);
@@ -782,6 +786,40 @@ body.session-active #btn-stop  { opacity: 1; pointer-events: auto; }
   max-width: 90vw; text-align: center; white-space: normal;
 }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+
+/* ── TAUNT BUBBLE ── */
+
+#taunt-bubble {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 2px;
+  width: 100%;
+  margin-top: 6px;
+  opacity: 0; transform: translateY(4px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+#taunt-bubble.show { opacity: 1; transform: translateY(0); }
+
+.taunt-name {
+  font-size: 7px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--dim);
+}
+.taunt-text {
+  font-size: 11px; letter-spacing: 1px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* boss taunts get a gold tint */
+#enemy-card.boss-card #taunt-bubble {
+  border-color: rgba(255, 210, 100, 0.1);
+}
+#enemy-card.boss-card .taunt-text {
+  color: rgba(255, 210, 100, 0.55);
+}
 
 
 /* ── RESPONSIVE ── */
